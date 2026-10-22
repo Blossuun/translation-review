@@ -3,7 +3,7 @@ name = "translation-review"
 version = "0.1.0"
 description = "번역 검수 보조 도구"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.13"
 # Colab은 기본 설치된 패키지를 그대로 쓰므로 하한만 적는다.
 dependencies = [
     "ipywidgets>=7.7",
@@ -17,6 +17,8 @@ dev = [
 ]
 
 [tool.uv]
+# 로컬 개발 환경을 Colab 기본 버전에 맞춘다 (실행 의존성 하한과는 별개, 잠금에만 적용).
+constraint-dependencies = ["ipywidgets==7.7.1"]
 package = false
 
 [tool.pytest.ini_options]

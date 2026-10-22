@@ -18,7 +18,7 @@
 
 Claude가 정한 기본값 (검토 후 바꿀 것이 있으면 알려 주세요)
 
-- 로컬 Python은 3.12 (`.python-version`). Colab 기본 런타임 2026.04가 Python 3.12.13이라 같은 버전에 맞췄다. uv가 받아서 관리하므로 따로 설치하지 않는다.
+- 로컬 Python은 3.13 (`.python-version`), ipywidgets는 7.7.1 (`pyproject.toml`의 `constraint-dependencies`, 잠금에만 적용). 사용자가 Colab에서 확인한 버전(Python 3.13, ipywidgets 7.7.1, 2026-10-22)에 맞췄다. uv가 받아서 관리하므로 따로 설치하지 않는다.
 - 실행 의존성은 `requests>=2.31`, `ipywidgets>=7.7` 하한만. Colab은 기본 설치된 패키지를 그대로 쓰고 아무것도 설치하지 않는다. `uv.lock`은 로컬 재현용.
 - Colab 첫 셀: 저장소를 `/content/translation-review`에 clone(있으면 `git pull --ff-only`) → 그 폴더로 이동 → `llm_client.prepare()`가 Ollama 설치(`zstd`·`pciutils` apt 설치 포함, 설치 스크립트가 `zstd`를 요구함)·`ollama serve` 백그라운드 실행·모델 다운로드. 로컬에서는 연결과 모델 설치만 확인한다.
 - HTTP 호출은 `requests`로 Ollama REST API(`/api/tags`, `/api/pull`, `/api/chat`)를 직접 호출한다. thinking 끔은 `"think": false`.
@@ -39,14 +39,14 @@ Claude가 정한 기본값 (검토 후 바꿀 것이 있으면 알려 주세요)
   - 파일: `docs/SPEC.md`
   - 내용: 4.2절 근거 확인 대상에 용어집 추가, 5절 `num_ctx` 초과 시 전송 전 차단·실행 준비 표, 8절 저장소 구조(uv 프로젝트, `scripts/`, `tests/`)
   - 확인: `git diff docs/SPEC.md`에 위 내용과 버전·변경 사항 줄만 바뀜
-- [ ] **[사용자 확인] VS Code Jupyter 확장 설치**, 노트북 커널로 저장소의 `.venv` 선택 (작업 1 이후)
+- [x] **[사용자 확인] VS Code Jupyter 확장 설치**, 노트북 커널로 저장소의 `.venv` 선택 — 첫 셀 "준비 완료: 로컬 / 모델 qwen3.5:4b" (2026-10-22)
 
 ## 1단계: 동작 확인 (명세 11절 1)
 
 - [x] **작업 1: 프로젝트 골격과 환경 준비 셀** (명세 5, 8절)
   - 파일: `pyproject.toml`, `uv.lock`, `.python-version`, `.gitignore`, `llm_client.py`(환경 판별, 모델 태그 상수, `check()`, `prepare()`), `translation_review.ipynb`(첫 셀: 환경 준비), `README.md`
-  - 확인: `uv sync` 오류 없음 / `uv run python -c "import sys; print(sys.version)"` → `3.12.x` / `uv run python -m pytest -q` → `no tests ran` / `uv run python -c "import llm_client; llm_client.prepare()"` → 연결 정상과 모델 태그 출력
-  - **[사용자 확인]** 저장소를 공개로 바꾼 뒤 README의 Colab 링크로 노트북을 열고 첫 셀 실행 → clone, Ollama 설치·실행, `qwen3.5:9b` 다운로드 후 "준비 완료" 출력. `!pip show ipywidgets`의 버전도 알려 주세요.
+  - 확인: `uv sync` 오류 없음 / `uv run python -c "import sys; print(sys.version)"` → `3.13.x` / `uv run python -m pytest -q` → `no tests ran` / `uv run python -c "import llm_client; llm_client.prepare()"` → 연결 정상과 모델 태그 출력
+  - **[사용자 확인 완료 2026-10-22]** Colab 첫 셀 → Ollama 설치, `qwen3.5:9b` 다운로드, "준비 완료: Colab / 모델 qwen3.5:9b". Colab 버전: Python 3.13, ipywidgets 7.7.1
 - [ ] **작업 2: Ollama 호출** (명세 5절)
   - 파일: `llm_client.py`
   - 내용: `/api/chat` 호출(`format`=4.1절 스키마, temperature 0, `num_ctx` 16384, think false), 응답 원문·소요 시간·`prompt_eval_count` 반환

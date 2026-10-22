@@ -167,7 +167,7 @@
 
 | 환경 | 준비 |
 | --- | --- |
-| Windows 로컬 | uv가 관리하는 Python 3.12 (Colab 기본 런타임과 같은 버전). `uv sync`로 설치하고 VS Code 노트북 커널로 `.venv`를 고른다. Ollama 앱은 직접 실행한다. |
+| Windows 로컬 | uv가 관리하는 Python 3.13, ipywidgets 7.7.1 (Colab 기본 런타임과 같은 버전). `uv sync`로 설치하고 VS Code 노트북 커널로 `.venv`를 고른다. Ollama 앱은 직접 실행한다. |
 | Google Colab | GitHub에서 노트북을 열고 첫 셀만 실행한다. 첫 셀이 공개 저장소를 `git clone`하고 Ollama 설치·서버 실행·모델 다운로드를 한다. Python 패키지는 설치하지 않고 Colab 기본 패키지를 쓴다. |
 
 - 같은 노트북·같은 코드를 쓴다. 첫 셀은 로컬에서는 Ollama 연결만 확인한다.
@@ -205,7 +205,7 @@ translation-review/
 ├── README.md
 ├── pyproject.toml             # 의존성 (uv 프로젝트)
 ├── uv.lock                    # 로컬 개발 환경 고정
-├── .python-version            # 3.12
+├── .python-version            # 3.13
 ├── translation_review.ipynb   # UI와 실행 (첫 셀: 환경 준비)
 ├── prompt.md                  # 프롬프트 (버전 포함)
 ├── reviewer.py                # 프롬프트 조립, 응답 검증

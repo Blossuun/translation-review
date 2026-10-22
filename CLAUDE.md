@@ -5,7 +5,7 @@
 
 ## 명령어
 
-uv 프로젝트로 관리한다. Python은 `.python-version`의 3.12 (Colab 기본 런타임과 같음). PATH의 `python`은 스토어 바로가기뿐이므로 항상 `uv run`으로 실행한다.
+uv 프로젝트로 관리한다. Python은 `.python-version`의 3.13, ipywidgets는 7.7.1 (Colab 기본 런타임과 같음. Colab이 바뀌면 둘 다 맞춘다). PATH의 `python`은 스토어 바로가기뿐이므로 항상 `uv run`으로 실행한다.
 `.venv\Scripts\`의 실행 파일(`pytest.exe` 등)은 Windows 애플리케이션 제어 정책에 막히므로 `uv run python -m <모듈>` 형태로 실행한다.
 
 - 설치: `uv sync` (`.venv` 생성, dev 그룹 포함)
