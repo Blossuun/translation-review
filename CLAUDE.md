@@ -24,6 +24,15 @@
 - 한 작업 단위 = 한 커밋.
 - 사용자에게는 한국어로 답한다.
 
+## 작업 방식
+
+- 순서: 관련 명세 절·코드 읽기 → 짧은 계획 → 구현(순수 함수는 테스트 먼저) → `pytest -q` → `docs/PLAN.md` 체크 → 커밋.
+- 구현·테스트·프롬프트 방법에 공식 문서나 널리 쓰이는 모범 사례가 있으면 따른다 (Claude Code 모범 사례 https://www.anthropic.com/engineering/claude-code-best-practices, pytest·ipywidgets·Ollama 공식 문서 등).
+- 확실하지 않은 API·옵션은 기억에 의존하지 말고 공식 문서를 확인한다. 확인하지 않은 출처나 논문을 지어내지 않는다.
+- 모범 사례를 근거로 한 설계 결정은 답변에 출처를 한 줄로 밝힌다.
+- 모범 사례가 명세·이 파일의 규칙과 충돌하면 명세·규칙을 따르고, 충돌 사실을 알린다.
+- Colab 실행, 화면 표시, 처리 시간처럼 직접 확인할 수 없는 항목은 확인했다고 하지 말고 사용자에게 확인을 요청한다.
+
 ## prompt.md 작성·수정 시
 
 참고: Anthropic 프롬프트 가이드 https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview
