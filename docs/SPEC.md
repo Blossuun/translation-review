@@ -1,11 +1,13 @@
 # 번역 검수 보조 도구 MVP 명세서
 
-**버전:** 0.5
+**버전:** 0.5.1
 **개발 형태:** GitHub 저장소 기반 Python 노트북
 **실행 환경:** Google Colab GPU / Windows 로컬 CPU (두 환경 모두 Ollama)
 **목표:** 번역 검수자가 확인해야 할 지점을 빠르게 찾도록 돕는 보조 도구
 
 **v0.5 변경 사항:** 도구의 역할을 "완성형 평가 시스템"에서 "확인 지점 안내 보조 도구"로 축소했다. 번역은 기본적으로 양호하다고 전제하고, 근거가 분명한 지점만 안내한다. 사용자 피드백·디버그·검수자 판정 입력 등 관리 부담이 되는 기능을 제거했다.
+
+**v0.5.1 변경 사항:** 근거 확인 대상에 용어집 추가(4.2), 입력 크기 초과 시 전송 전 차단(5), 실행 준비 방식(5)과 저장소 구조(8)를 uv 프로젝트·Colab `git clone` 기준으로 구체화했다.
 
 ## 1. 개요
 
@@ -104,7 +106,7 @@
 | 검사 | 처리 |
 | --- | --- |
 | JSON 형식 오류 | 1회 재시도. 재실패 시 "평가 실패"만 표시 |
-| `guideline_reference`가 가이드라인 본문에 없음 | 해당 지적을 **표시하지 않음**. 상태 줄에 "근거 미확인으로 제외 N건"만 작게 표시. |
+| `guideline_reference`가 가이드라인 본문과 용어집 어디에도 없음 | 해당 지적을 **표시하지 않음**. 상태 줄에 "근거 미확인으로 제외 N건"만 작게 표시. |
 | 문제 구간이 원본에 없음 | 지적은 표에 표시하되 하이라이트하지 않음 |
 | `recommended_grade`가 가이드라인 본문에 없음 | 등급 표시를 생략 |
 
@@ -156,10 +158,21 @@
 | --- | --- |
 | 출력 형식 | Ollama `format`에 4.1절 JSON 스키마 지정 |
 | temperature | 0 |
-| `num_ctx` | 16384 (명시 설정). 입력이 넘치면 자르지 않고 경고 |
+| `num_ctx` | 16384 (명시 설정). 전송 전에 토큰 수를 어림해 넘으면 보내지 않고 경고 (Ollama가 앞부분을 잘라 버리므로) |
 | thinking 모드 | 끔 |
 
 **로컬 처리 시간:** 개발 첫 단계에서 실측한다. 너무 느리면 로컬은 단건 전용으로 쓰고 일괄은 Colab에서 쓴다.
+
+**실행 준비**
+
+| 환경 | 준비 |
+| --- | --- |
+| Windows 로컬 | uv가 관리하는 Python 3.12 (Colab 기본 런타임과 같은 버전). `uv sync`로 설치하고 VS Code 노트북 커널로 `.venv`를 고른다. Ollama 앱은 직접 실행한다. |
+| Google Colab | GitHub에서 노트북을 열고 첫 셀만 실행한다. 첫 셀이 공개 저장소를 `git clone`하고 Ollama 설치·서버 실행·모델 다운로드를 한다. Python 패키지는 설치하지 않고 Colab 기본 패키지를 쓴다. |
+
+- 같은 노트북·같은 코드를 쓴다. 첫 셀은 로컬에서는 Ollama 연결만 확인한다.
+- 실행 의존성(`requests`, `ipywidgets`)은 하한만 지정해 Colab 기본 버전으로 동작하게 한다. 개발용(`pytest`, `ipykernel`)은 dev 그룹에 둔다.
+- ipywidgets는 7과 8에 공통인 API만 쓴다.
 
 ## 6. 화면 구성 (ipywidgets)
 
@@ -190,13 +203,17 @@
 ```text
 translation-review/
 ├── README.md
-├── requirements.txt
-├── translation_review.ipynb   # UI와 실행
+├── pyproject.toml             # 의존성 (uv 프로젝트)
+├── uv.lock                    # 로컬 개발 환경 고정
+├── .python-version            # 3.12
+├── translation_review.ipynb   # UI와 실행 (첫 셀: 환경 준비)
 ├── prompt.md                  # 프롬프트 (버전 포함)
 ├── reviewer.py                # 프롬프트 조립, 응답 검증
-├── llm_client.py              # 환경 판별, Ollama 호출
+├── llm_client.py              # 환경 판별, Ollama 준비·호출
 ├── tsv.py                     # 일괄 입력·용어집 붙여넣기 파싱
-└── render.py                  # 결과 HTML 생성 (하이라이트, 표)
+├── render.py                  # 결과 HTML 생성 (하이라이트, 표)
+├── scripts/smoke.py           # 모델 연결 확인 (개발용)
+└── tests/                     # pytest 단위 테스트 (개발용)
 ```
 
 ## 9. 확인 및 개선 방식
