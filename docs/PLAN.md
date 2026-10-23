@@ -64,6 +64,7 @@ Claude가 정한 기본값 (검토 후 바꿀 것이 있으면 알려 주세요)
 - [ ] **작업 5: 하이라이트 HTML과 표시 확인** (명세 4.3, 6절)
   - 파일: `render.py`(이스케이프, 정확 일치 → 공백 정규화 일치, 모든 출현 표시, 번호 붙인 하이라이트, 인라인 style·흰 배경), `tests/test_render.py`, `translation_review.ipynb`(가상 예시 하이라이트와 `<details>` 샘플을 `widgets.HTML`로 표시하는 셀)
   - 확인: `uv run python -m pytest -q` → 통과 (`<script>` 등 이스케이프, 공백 차이 일치, 중복 출현, 겹치는 구간, 없는 구간)
+  - 결과 (2026-10-23): `22 passed` (render 13건). `render.find_spans`(정확 일치 → 공백 연속을 `\s+`로 본 일치, 원본 위치 반환. 작업 7의 구간 존재 확인에도 쓸 수 있음), `highlight`(번호 배지 + 노란 `<mark>`, 겹치면 먼저 시작·같으면 번호 작은 쪽), `columns`(flex 좌우 2단, `pre-wrap`), `details`(기본 접힘), `page`(흰 배경·글자색 명시). 노트북에 "표시 확인" 셀 추가, 셀 출력 0개. 사용자 확인 전이라 체크하지 않음.
   - **[사용자 확인]** VS Code와 Colab에서 노트북 실행 → 하이라이트 색·번호·`<details>` 접기가 보이고 다크 테마에서도 흰 배경으로 읽힘
 - [ ] **작업 6: [사용자 확인] 로컬 처리 시간 실측** (명세 5절)
   - `uv run python scripts/smoke.py`를 3회 실행해 소요 시간과 `prompt_eval_count`/글자 수를 알려 주세요.
