@@ -56,10 +56,11 @@ Claude가 정한 기본값 (검토 후 바꿀 것이 있으면 알려 주세요)
   - 파일: `prompt.md`(v0.1, 지시 최소한), `reviewer.py`(프롬프트 읽기·버전 추출·자리표시자 채우기), `tests/test_reviewer.py`
   - 확인: `uv run python -m pytest -q` → 통과 (버전 추출, 자리표시자 치환, 입력 속 `{{...}}`·XML 태그 문자열이 그대로 들어가는지)
   - 결과 (2026-10-23): `9 passed`. `reviewer.parse_prompt`/`load_prompt`(`버전:` 줄, `<!-- system -->`·`<!-- user -->` 구분), `fill`, `build_messages`. 자리표시자: `source_lang`, `target_lang`, `guideline`, `context`, `source`, `translation` (용어집은 작업 13). 템플릿에 모르는 자리표시자가 있으면 `KeyError`.
-- [ ] **작업 4: 연결 확인 스크립트**
+- [x] **작업 4: 연결 확인 스크립트**
   - 파일: `scripts/smoke.py`
   - 내용: 가상 예시 1건을 조립해 전송, 응답 JSON·소요 시간·입력 글자 수·`prompt_eval_count` 출력
   - 확인: `uv run python scripts/smoke.py` → 4.1절 형식 JSON과 소요 시간 출력
+  - 결과 (2026-10-23): 가상 예시(영어→한국어, 존댓말 규칙 위반)에 4.1절 형식 JSON으로 지적 1건·`recommended_grade` "수정 필요". `qwen3.5:4b` 34.34초, 입력 999자, `prompt_eval_count` 434. 연결·모델 문제는 `check()` 원인 문장을 출력하고 종료 코드 1. `guideline_reference`가 규칙 번호만("2") 와서, 작업 7의 문자열 포함 검사가 너무 쉽게 통과할 수 있다 (작업 7·10에서 다룸).
 - [ ] **작업 5: 하이라이트 HTML과 표시 확인** (명세 4.3, 6절)
   - 파일: `render.py`(이스케이프, 정확 일치 → 공백 정규화 일치, 모든 출현 표시, 번호 붙인 하이라이트, 인라인 style·흰 배경), `tests/test_render.py`, `translation_review.ipynb`(가상 예시 하이라이트와 `<details>` 샘플을 `widgets.HTML`로 표시하는 셀)
   - 확인: `uv run python -m pytest -q` → 통과 (`<script>` 등 이스케이프, 공백 차이 일치, 중복 출현, 겹치는 구간, 없는 구간)
