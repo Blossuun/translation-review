@@ -23,7 +23,7 @@ Claude가 정한 기본값 (검토 후 바꿀 것이 있으면 알려 주세요)
 - Colab 첫 셀: 저장소를 `/content/translation-review`에 clone(있으면 `git pull --ff-only`) → 그 폴더로 이동 → `llm_client.prepare()`가 Ollama 설치(`zstd`·`pciutils` apt 설치 포함, 설치 스크립트가 `zstd`를 요구함)·`ollama serve` 백그라운드 실행·모델 다운로드. 로컬에서는 연결과 모델 설치만 확인한다.
 - HTTP 호출은 `requests`로 Ollama REST API(`/api/tags`, `/api/pull`, `/api/chat`)를 직접 호출한다. thinking 끔은 `"think": false`.
 - 환경 판별: `google.colab` 모듈 존재 여부. 두 환경 모두 `http://localhost:11434`. 모델 태그는 `llm_client.py` 상수 (로컬 `qwen3.5:4b`, Colab `qwen3.5:9b` = Q4_K_M 5.6GB, 레지스트리에서 확인). 9B가 안 되면 상수를 직접 바꾼다 (자동 전환 없음, 명세 1.3).
-- `prompt.md` 구조: 첫 줄 `버전: X.Y`, 이어서 system 지시 부분과 user 데이터 템플릿 부분을 구분 주석으로 나눈다. 자리표시자는 `{{guideline}}` 형식이며 `str.replace`로 채운다 (JSON 예시의 `{}`와 충돌하지 않게).
+- `prompt.md` 구조: 첫 줄 `버전: X.Y`, 이어서 system 지시 부분과 user 데이터 템플릿 부분을 구분 주석으로 나눈다. 자리표시자는 `{{guideline}}` 형식이며 정규식으로 한 번에 채운다 (JSON 예시의 `{}`와 충돌하지 않고, 채운 값 속 `{{...}}`는 다시 치환하지 않게).
 - 근거·구간 문자열 비교는 정확 일치 후 공백 정규화 일치 (명세 4.3 하이라이트 규칙과 같게). 빈 `guideline_reference`는 근거 미확인으로 본다.
 - 응답이 JSON이지만 필수 키가 없거나 타입이 틀리면 JSON 형식 오류와 같이 1회 재시도한다.
 - 토큰 어림: 한중일 문자 1자 = 1토큰, 그 외 문자 3자 = 1토큰, 출력 몫으로 2048토큰을 남긴다. 작업 6의 실측값으로 비율을 보정한다.
@@ -52,9 +52,10 @@ Claude가 정한 기본값 (검토 후 바꿀 것이 있으면 알려 주세요)
   - 내용: `/api/chat` 호출(`format`=4.1절 스키마, temperature 0, `num_ctx` 16384, think false), 응답 원문·소요 시간·`prompt_eval_count` 반환
   - 확인: `uv run python -c "import llm_client; print(llm_client.chat([{'role':'user','content':'hi'}], None))"` → 응답과 소요 시간 출력 / Ollama를 끈 상태 → 연결 실패 원인 출력
   - 결과 (2026-10-23): `ChatResult(content='Hello! ...', seconds=15.73, prompt_eval_count=13)` / 스키마 지정 시 `{"flags": [], ...}` JSON / 닫힌 포트 → "Ollama에 연결할 수 없습니다" / 없는 모델 → "HTTP 404: model ... not found". 연결 오류는 원인 문장을 담은 `RuntimeError`, 응답 대기 한도 600초.
-- [ ] **작업 3: 프롬프트 초안과 조립** (명세 3절)
+- [x] **작업 3: 프롬프트 초안과 조립** (명세 3절)
   - 파일: `prompt.md`(v0.1, 지시 최소한), `reviewer.py`(프롬프트 읽기·버전 추출·자리표시자 채우기), `tests/test_reviewer.py`
   - 확인: `uv run python -m pytest -q` → 통과 (버전 추출, 자리표시자 치환, 입력 속 `{{...}}`·XML 태그 문자열이 그대로 들어가는지)
+  - 결과 (2026-10-23): `9 passed`. `reviewer.parse_prompt`/`load_prompt`(`버전:` 줄, `<!-- system -->`·`<!-- user -->` 구분), `fill`, `build_messages`. 자리표시자: `source_lang`, `target_lang`, `guideline`, `context`, `source`, `translation` (용어집은 작업 13). 템플릿에 모르는 자리표시자가 있으면 `KeyError`.
 - [ ] **작업 4: 연결 확인 스크립트**
   - 파일: `scripts/smoke.py`
   - 내용: 가상 예시 1건을 조립해 전송, 응답 JSON·소요 시간·입력 글자 수·`prompt_eval_count` 출력
