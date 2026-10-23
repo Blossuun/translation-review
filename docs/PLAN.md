@@ -47,10 +47,11 @@ Claude가 정한 기본값 (검토 후 바꿀 것이 있으면 알려 주세요)
   - 파일: `pyproject.toml`, `uv.lock`, `.python-version`, `.gitignore`, `llm_client.py`(환경 판별, 모델 태그 상수, `check()`, `prepare()`), `translation_review.ipynb`(첫 셀: 환경 준비), `README.md`
   - 확인: `uv sync` 오류 없음 / `uv run python -c "import sys; print(sys.version)"` → `3.13.x` / `uv run python -m pytest -q` → `no tests ran` / `uv run python -c "import llm_client; llm_client.prepare()"` → 연결 정상과 모델 태그 출력
   - **[사용자 확인 완료 2026-10-22]** Colab 첫 셀 → Ollama 설치, `qwen3.5:9b` 다운로드, "준비 완료: Colab / 모델 qwen3.5:9b". Colab 버전: Python 3.13, ipywidgets 7.7.1
-- [ ] **작업 2: Ollama 호출** (명세 5절)
+- [x] **작업 2: Ollama 호출** (명세 5절)
   - 파일: `llm_client.py`
   - 내용: `/api/chat` 호출(`format`=4.1절 스키마, temperature 0, `num_ctx` 16384, think false), 응답 원문·소요 시간·`prompt_eval_count` 반환
   - 확인: `uv run python -c "import llm_client; print(llm_client.chat([{'role':'user','content':'hi'}], None))"` → 응답과 소요 시간 출력 / Ollama를 끈 상태 → 연결 실패 원인 출력
+  - 결과 (2026-10-23): `ChatResult(content='Hello! ...', seconds=15.73, prompt_eval_count=13)` / 스키마 지정 시 `{"flags": [], ...}` JSON / 닫힌 포트 → "Ollama에 연결할 수 없습니다" / 없는 모델 → "HTTP 404: model ... not found". 연결 오류는 원인 문장을 담은 `RuntimeError`, 응답 대기 한도 600초.
 - [ ] **작업 3: 프롬프트 초안과 조립** (명세 3절)
   - 파일: `prompt.md`(v0.1, 지시 최소한), `reviewer.py`(프롬프트 읽기·버전 추출·자리표시자 채우기), `tests/test_reviewer.py`
   - 확인: `uv run python -m pytest -q` → 통과 (버전 추출, 자리표시자 치환, 입력 속 `{{...}}`·XML 태그 문자열이 그대로 들어가는지)
